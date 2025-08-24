@@ -1,4 +1,8 @@
-opencv-python
-face_recognition
-pandas
+streamlit
+opencv-python-headless
 numpy
+pandas
+cmake
+dlib-bin
+face-recognition
+Pillow
