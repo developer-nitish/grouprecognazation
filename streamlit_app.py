@@ -1,175 +1,3 @@
-
-# import streamlit as st
-# import cv2
-# import os
-# import pickle
-# import face_recognition
-# import pandas as pd
-# from datetime import datetime
-
-# # Paths
-# OUTPUT_DIR = "output"
-# FACES_DIR = "data/faces"
-# GROUP_PHOTOS_DIR = "data/group_photos"
-
-# os.makedirs(OUTPUT_DIR, exist_ok=True)
-# os.makedirs(FACES_DIR, exist_ok=True)
-# os.makedirs(GROUP_PHOTOS_DIR, exist_ok=True)
-
-# # --------------------------
-# # Helper: Save encodings
-# # --------------------------
-# def save_encodings(encodings, path=os.path.join(OUTPUT_DIR, "encodings.pkl")):
-#     with open(path, "wb") as f:
-#         pickle.dump(encodings, f)
-#     st.success(f" Encodings saved to {path}")
-
-# # --------------------------
-# # Helper: Load encodings
-# # --------------------------
-# def load_encodings(path=os.path.join(OUTPUT_DIR, "encodings.pkl")):
-#     if os.path.exists(path):
-#         with open(path, "rb") as f:
-#             return pickle.load(f)
-#     return {}
-
-# # --------------------------
-# # Capture Student Photos
-# # --------------------------
-# def capture_photos(reg_no, name, num_photos=5):
-#     folder_path = os.path.join(FACES_DIR, f"{reg_no}_{name.replace(' ', '_')}")
-#     os.makedirs(folder_path, exist_ok=True)
-
-#     cap = cv2.VideoCapture(0)
-#     count = 0
-#     frame_placeholder = st.empty()
-
-#     st.info("📸 Capturing photos... Please stay still and look at the camera")
-
-#     while count < num_photos:
-#         ret, frame = cap.read()
-#         if not ret:
-#             st.error("Camera not detected ")
-#             break
-
-#         # Show camera feed inside Streamlit
-#         frame_placeholder.image(frame, channels="BGR", caption=f"Capturing Photo {count+1}/{num_photos}")
-
-#         # Save photo
-#         file_path = os.path.join(folder_path, f"{count+1}.jpg")
-#         cv2.imwrite(file_path, frame)
-#         count += 1
-
-#     cap.release()
-#     st.success(f" {num_photos} photos captured and saved to {folder_path}")
-
-# # --------------------------
-# # Encode known faces
-# # --------------------------
-# def encode_faces():
-#     encodings = {}
-#     for student_dir in os.listdir(FACES_DIR):
-#         student_path = os.path.join(FACES_DIR, student_dir)
-#         if not os.path.isdir(student_path):
-#             continue
-
-#         student_encodings = []
-#         for img_file in os.listdir(student_path):
-#             img_path = os.path.join(student_path, img_file)
-#             image = face_recognition.load_image_file(img_path)
-#             face_encs = face_recognition.face_encodings(image)
-
-#             if face_encs:
-#                 student_encodings.append(face_encs[0])
-
-#         if student_encodings:
-#             encodings[student_dir] = student_encodings
-
-#     save_encodings(encodings)
-#     return encodings
-
-# # --------------------------
-# # Mark Attendance
-# # --------------------------
-# def mark_attendance(group_photo_path, encodings):
-#     group_image = face_recognition.load_image_file(group_photo_path)
-#     group_face_locations = face_recognition.face_locations(group_image)
-#     group_face_encodings = face_recognition.face_encodings(group_image, group_face_locations)
-
-#     st.info(f" Total faces detected in group photo: {len(group_face_encodings)}")
-
-#     attendance = []
-#     matched_students = []
-
-#     for group_face_enc in group_face_encodings:
-#         match_found = False
-#         for student, student_encodings in encodings.items():
-#             results = face_recognition.compare_faces(student_encodings, group_face_enc, tolerance=0.5)
-#             if True in results:
-#                 st.success(f"[✅] Match found: {student}")
-#                 attendance.append((student, "Present"))
-#                 matched_students.append(student)
-#                 match_found = True
-#                 break
-
-#         if not match_found:
-#             st.warning("[❌] No match for a face in the group photo")
-
-#     # Mark absent students
-#     for student in encodings.keys():
-#         if student not in matched_students:
-#             attendance.append((student, "Absent"))
-
-#     # Save attendance
-#     df = pd.DataFrame(attendance, columns=["Student", "Status"])
-#     df["Timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-#     out_path = os.path.join(OUTPUT_DIR, "attendance.csv")
-#     df.to_csv(out_path, index=False)
-
-#     st.success(f"[✅] Attendance marked in {out_path}")
-#     st.dataframe(df)
-
-# # --------------------------
-# # Streamlit UI
-# # --------------------------
-# st.title(" Face Recognition Attendance System")
-
-# menu = st.sidebar.selectbox("Menu", ["Register Student", "Train Faces", "Upload Group Photo & Mark Attendance"])
-
-# if menu == "Register Student":
-#     st.subheader(" Register New Student")
-#     reg_no = st.text_input("Registration Number")
-#     name = st.text_input("Full Name")
-#     num_photos = st.slider("Number of photos to capture", 3, 15, 5)
-
-#     if st.button("Capture Photos"):
-#         if reg_no and name:
-#             capture_photos(reg_no, name, num_photos)
-#         else:
-#             st.error("Please enter both Registration Number and Name ")
-
-# elif menu == "Train Faces":
-#     st.subheader("⚡ Train Faces and Generate Encodings")
-#     if st.button("Start Training"):
-#         encode_faces()
-
-# elif menu == "Upload Group Photo & Mark Attendance":
-#     st.subheader(" Upload Group Photo")
-#     uploaded_file = st.file_uploader("Upload a group photo", type=["jpg", "jpeg", "png"])
-
-#     if uploaded_file is not None:
-#         group_photo_path = os.path.join(GROUP_PHOTOS_DIR, uploaded_file.name)
-#         with open(group_photo_path, "wb") as f:
-#             f.write(uploaded_file.read())
-#         st.image(group_photo_path, caption="Uploaded Group Photo")
-
-#         encodings = load_encodings()
-#         if st.button("Mark Attendance"):
-#             if encodings:
-#                 mark_attendance(group_photo_path, encodings)
-#             else:
-#                 st.error("No encodings found  Please train faces first")
 import streamlit as st
 import cv2
 import os
@@ -215,12 +43,12 @@ def capture_photos(reg_no, name, branch, session, num_photos=5):
     count = 0
     frame_placeholder = st.empty()
 
-    st.info("📸 Capturing photos... Please stay still and look at the camera")
+    st.info(" Capturing photos... Please stay still and look at the camera")
 
     while count < num_photos:
         ret, frame = cap.read()
         if not ret:
-            st.error("Camera not detected ❌")
+            st.error("Camera not detected ")
             break
 
         frame_placeholder.image(frame, channels="BGR", caption=f"Capturing Photo {count+1}/{num_photos}")
@@ -229,17 +57,21 @@ def capture_photos(reg_no, name, branch, session, num_photos=5):
         count += 1
 
     cap.release()
-    st.success(f" ✅ {num_photos} photos captured and saved to {folder_path}")
+    st.success(f"  {num_photos} photos captured and saved to {folder_path}")
 
 # --------------------------
-# Encode known faces
+# Encode known faces (with progress bar)
 # --------------------------
 def encode_faces():
     encodings = {}
-    for student_dir in os.listdir(FACES_DIR):
+    student_dirs = [d for d in os.listdir(FACES_DIR) if os.path.isdir(os.path.join(FACES_DIR, d))]
+
+    progress_bar = st.progress(0)       # progress bar
+    status_text = st.empty()            # status message
+    total_students = len(student_dirs)
+
+    for idx, student_dir in enumerate(student_dirs, start=1):
         student_path = os.path.join(FACES_DIR, student_dir)
-        if not os.path.isdir(student_path):
-            continue
 
         student_encodings = []
         for img_file in os.listdir(student_path):
@@ -255,7 +87,13 @@ def encode_faces():
         if student_encodings:
             encodings[student_dir] = student_encodings
 
+        # update progress
+        progress = int((idx / total_students) * 100)
+        progress_bar.progress(progress)
+        status_text.text(f"Encoding {idx}/{total_students} students...")
+
     save_encodings(encodings)
+    st.success(" Training Completed!")
     return encodings
 
 # --------------------------
@@ -290,14 +128,14 @@ def mark_attendance(group_photo_path, encodings, selected_branch, selected_sessi
             cohort_keys.append(k)
 
     if not cohort_keys:
-        st.warning("⚠️ No students found for this Branch & Session.")
+        st.warning(" No students found for this Branch & Session.")
         return
 
     group_image = face_recognition.load_image_file(group_photo_path)
     group_face_locations = face_recognition.face_locations(group_image)
     group_face_encodings = face_recognition.face_encodings(group_image, group_face_locations)
 
-    st.info(f"👥 Total faces detected in group photo: {len(group_face_encodings)}")
+    st.info(f" Total faces detected in group photo: {len(group_face_encodings)}")
 
     attendance_rows = []
     matched_students = set()
@@ -309,13 +147,13 @@ def mark_attendance(group_photo_path, encodings, selected_branch, selected_sessi
             if True in results:
                 if student_key not in matched_students:
                     reg_no, name, branch, session = parse_student(student_key)
-                    st.success(f"✅ Match found: {reg_no} {name} ({branch}, {session})")
+                    st.success(f" Match found: {reg_no} {name} ({branch}, {session})")
                     attendance_rows.append((reg_no, name, branch, session, "Present"))
                     matched_students.add(student_key)
                 match_found = True
                 break
         if not match_found:
-            st.warning("❌ No match for a face in the group photo")
+            st.warning(" No match for a face in the group photo")
 
     for student_key in cohort_keys:
         if student_key not in matched_students:
@@ -331,18 +169,18 @@ def mark_attendance(group_photo_path, encodings, selected_branch, selected_sessi
     out_path = os.path.join(OUTPUT_DIR, f"attendance_{safe_branch}_{safe_session}.csv")
     df.to_csv(out_path, index=False)
 
-    st.success(f"📂 Attendance marked in {out_path}")
+    st.success(f"Attendance marked in {out_path}")
     st.dataframe(df)
 
 # --------------------------
 # Streamlit UI
 # --------------------------
-st.title("🎓 Face Recognition Attendance System")
+st.title(" Face Recognition Attendance System")
 
 menu = st.sidebar.selectbox("Menu", ["Register Student", "Train Faces", "Upload Group Photo & Mark Attendance"])
 
 if menu == "Register Student":
-    st.subheader("📝 Register New Student")
+    st.subheader(" Register New Student")
     reg_no = st.text_input("Registration Number")
     name = st.text_input("Full Name")
     branch = st.selectbox("Branch", ["CSE(AI&ML)", "CSE(DS)", "CSE(Core)", "ECE", "EEE"])
@@ -353,15 +191,15 @@ if menu == "Register Student":
         if reg_no and name and branch and session:
             capture_photos(reg_no, name, branch, session, num_photos)
         else:
-            st.error("⚠️ Please fill all fields")
+            st.error(" Please fill all fields")
 
 elif menu == "Train Faces":
-    st.subheader("⚡ Train Faces and Generate Encodings")
+    st.subheader(" Train Faces and Generate Encodings")
     if st.button("Start Training"):
         encode_faces()
 
 elif menu == "Upload Group Photo & Mark Attendance":
-    st.subheader("📤 Upload Group Photo")
+    st.subheader(" Upload Group Photo")
     uploaded_file = st.file_uploader("Upload a group photo", type=["jpg", "jpeg", "png"])
 
     if uploaded_file is not None:
@@ -381,4 +219,4 @@ elif menu == "Upload Group Photo & Mark Attendance":
             if st.button("Mark Attendance"):
                 mark_attendance(group_photo_path, encodings, selected_branch, selected_session)
         else:
-            st.error("⚠️ No encodings found. Please train faces first.")
+            st.error(" No encodings found. Please train faces first.")
