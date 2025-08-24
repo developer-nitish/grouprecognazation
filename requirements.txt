@@ -4,6 +4,6 @@ numpy
 pandas
 cmake
 dlib-bin
-face-recognition
+face-recognition==1.3.0
 Pillow
 deepface
