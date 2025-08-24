@@ -6,3 +6,4 @@ cmake
 dlib-bin
 face-recognition
 Pillow
+deepface
